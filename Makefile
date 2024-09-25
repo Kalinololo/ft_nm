@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
-SRC = src/main.c src/parse.c
+SRC = src/main.c src/parse.c src/utils.c src/ft_nm64.c
 OBJ = $(SRC:.c=.o)
 OBJS = $(subst src, bin, $(OBJ))
 EXEC = ft_nm

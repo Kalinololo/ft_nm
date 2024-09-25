@@ -58,6 +58,7 @@ t_file_info *parse_arg(char *arg)
         free(file_info);
         return NULL;
     }
+    file_info->path = arg;
     return file_info;
 }
 
