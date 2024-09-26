@@ -45,3 +45,17 @@ void name_sort(t_sym_list **list)
         tmp = tmp->next;
     }
 }
+
+
+void print_result(char to_print, int nb_char, unsigned long value, char *name) 
+{
+    int i = 0;
+    while (i < nb_char) 
+    {
+        write(1, &to_print, 1);
+        i++;
+    }
+    write(1, " ", 1);
+    write(1, value, 1);
+    write(1, "\n", 1);
+}

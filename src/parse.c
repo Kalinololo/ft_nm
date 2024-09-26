@@ -2,19 +2,6 @@
 
 /* TODO : CLEAN FORBIDDEN FCT   */
 
-char    *map_file(int fd, size_t *size)
-{
-    int s;
-    s = lseek(fd, 0, SEEK_END);
-    if (s == -1) return NULL;
-    lseek(fd, 0, SEEK_SET);
-    char *map = (char *) mmap(NULL, s, PROT_READ, MAP_PRIVATE, fd, 0);
-    if (map == MAP_FAILED)
-        return NULL;
-    *size = s;
-    return map;
-}
-
 t_file_info *parse_arg(char *arg)
 {
     t_file_info *file_info = (t_file_info *)malloc(sizeof(t_file_info));
@@ -35,6 +22,12 @@ t_file_info *parse_arg(char *arg)
         free(file_info);
         return NULL;
     }
+    if (file_info->stat.st_size == 0) 
+    {
+        close(file_info->fd);
+        free(file_info);
+        return NULL;
+    }
     if (S_ISDIR(file_info->stat.st_mode)) 
     {
         close(file_info->fd);
@@ -42,15 +35,15 @@ t_file_info *parse_arg(char *arg)
         free(file_info);
         return NULL;
     }
-    file_info->map = map_file(file_info->fd, &file_info->size);
-    if (file_info->map == NULL) 
+    file_info->map = (char *) mmap(NULL, file_info->stat.st_size, PROT_READ, MAP_PRIVATE, file_info->fd, 0);
+    if (file_info->map == MAP_FAILED) 
     {
         close(file_info->fd);
-        printf("map error : %s %d", arg, errno);
+        printf("map error : %s %d\n", arg, errno);
         free(file_info);
         return NULL;
     }
-    if (check_format(file_info->map))
+    if (file_info->stat.st_size < 5 || check_format(file_info->map))
     {
         close(file_info->fd);
         munmap(file_info->map, file_info->size);
@@ -59,6 +52,7 @@ t_file_info *parse_arg(char *arg)
         return NULL;
     }
     file_info->path = arg;
+    file_info->is_64 = file_info->map[4] == 2;
     return file_info;
 }
 

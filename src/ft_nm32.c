@@ -12,12 +12,13 @@ D/d :  Data section
 0 6 1
 */
 
-char get_symbol_type(Elf64_Sym symtab, Elf64_Shdr *shdr)
+char get_symbol_type32(Elf32_Sym symtab, Elf32_Shdr *shdr, char *name)
 {
-    Elf64_Word section_type = shdr[symtab.st_shndx].sh_type;
-    Elf64_Word section_flags = shdr[symtab.st_shndx].sh_flags;
-    unsigned char type = ELF64_ST_TYPE(symtab.st_info);
-    unsigned char bind = ELF64_ST_BIND(symtab.st_info);
+    Elf32_Word section_type = shdr[symtab.st_shndx].sh_type;
+    Elf32_Word section_flags = shdr[symtab.st_shndx].sh_flags;
+    unsigned char type = ELF32_ST_TYPE(symtab.st_info);
+    unsigned char bind = ELF32_ST_BIND(symtab.st_info);
+    (void)name;
 
     if (bind == STB_WEAK) 
     {
@@ -55,10 +56,11 @@ char get_symbol_type(Elf64_Sym symtab, Elf64_Shdr *shdr)
     return 'U';
 }
 
-void process_elf64(t_file_info *file_info) 
+void process_elf32(t_file_info *file_info) 
 {
-    Elf64_Ehdr *ehdr = (Elf64_Ehdr *)file_info->map;
-    Elf64_Shdr *shdr = (Elf64_Shdr *)(file_info->map + ehdr->e_shoff);
+    printf("\n32bit:\n");
+    Elf32_Ehdr *ehdr = (Elf32_Ehdr *)file_info->map;
+    Elf32_Shdr *shdr = (Elf32_Shdr *)(file_info->map + ehdr->e_shoff);
     int symbols_find = 0;
 
     for (int i = 0; i < ehdr->e_shnum; i++) 
@@ -66,8 +68,8 @@ void process_elf64(t_file_info *file_info)
         if (shdr[i].sh_type == SHT_SYMTAB) 
         {
             symbols_find = 1;
-            Elf64_Sym *symtab = (Elf64_Sym *)(file_info->map + shdr[i].sh_offset);
-            int symcount = shdr[i].sh_size / sizeof(Elf64_Sym);
+            Elf32_Sym *symtab = (Elf32_Sym *)(file_info->map + shdr[i].sh_offset);
+            int symcount = shdr[i].sh_size / sizeof(Elf32_Sym);
             char *symstrtab = (char *)(file_info->map + shdr[shdr[i].sh_link].sh_offset);
 
             t_sym_list **sym_list = malloc(sizeof(t_sym_list*));
@@ -78,11 +80,11 @@ void process_elf64(t_file_info *file_info)
             {
                 if (symtab[j].st_name == 0)
                     continue;
-                if (ELF64_ST_TYPE(symtab[j].st_info) == STT_FILE)
+                if (ELF32_ST_TYPE(symtab[j].st_info) == STT_FILE)
                     continue;
                 tmp->name = symstrtab + symtab[j].st_name;
                 tmp->value = symtab[j].st_value;
-                tmp->type = get_symbol_type(symtab[j], shdr);
+                tmp->type = get_symbol_type32(symtab[j], shdr, tmp->name);
                 t_sym_list *new = malloc(sizeof(t_sym_list));
                 tmp->next = new;
                 tmp = tmp->next;
@@ -96,7 +98,7 @@ void process_elf64(t_file_info *file_info)
             {
                 if (tmp->name == 0)
                     continue;
-                if (tmp->value == 0 && tmp->type != 'T' && tmp->type != 't' && tmp->type != 'a' && tmp->type != 'A')
+                if (tmp->value == 0)
                     printf("%16c ", ' ');
                 else
                     printf("%016lx ", tmp->value);

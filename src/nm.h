@@ -16,6 +16,7 @@ typedef struct s_file_info {
     char *path;
     int fd;
     struct stat stat;
+    int is_64;
     char *map;
     size_t size;
 } t_file_info;
@@ -30,10 +31,10 @@ typedef struct s_sym_list {
 
 t_file_info *parse_arg(char *arg);
 int check_format(char *c);
-char    *map_file(int fd, size_t *size);
 int ft_strcmp(const char *s1, const char *s2);
 char to_lower(char c);
 void process_elf64(t_file_info *file_info);
+void process_elf32(t_file_info *file_info);
 void name_sort(t_sym_list **list);
 
 
