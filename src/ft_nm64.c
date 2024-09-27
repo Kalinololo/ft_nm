@@ -91,20 +91,8 @@ void process_elf64(t_file_info *file_info)
 
             name_sort(sym_list);
 
-            tmp = *sym_list;
-            while (tmp->next != NULL) 
-            {
-                if (tmp->name == 0)
-                    continue;
-                if (tmp->value == 0 && tmp->type != 'T' && tmp->type != 't' && tmp->type != 'a' && tmp->type != 'A')
-                    printf("%16c ", ' ');
-                else
-                    printf("%016lx ", tmp->value);
-                printf("%c ", tmp->type);
-                printf("%s\n", tmp->name);
-                tmp = tmp->next;
-            }
+            print_result(sym_list, 16);
         }
     }
-    if (!symbols_find) printf("ft_nm: %s: no symbols\n", file_info->path);
+    if (!symbols_find) print("ft_nm: ", file_info->path, ": no symbols\n", NULL);
 }

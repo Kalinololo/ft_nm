@@ -36,6 +36,8 @@ char to_lower(char c);
 void process_elf64(t_file_info *file_info);
 void process_elf32(t_file_info *file_info);
 void name_sort(t_sym_list **list);
+void print_result(t_sym_list **list, int nb);
+void print(char *s1, char *s2, char *s3, char *s4);
 
 
 #endif

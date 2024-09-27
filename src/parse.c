@@ -1,16 +1,14 @@
 #include "nm.h"
 
-/* TODO : CLEAN FORBIDDEN FCT   */
-
 t_file_info *parse_arg(char *arg)
 {
     t_file_info *file_info = (t_file_info *)malloc(sizeof(t_file_info));
     file_info->fd = open(arg, O_RDONLY);
     if (file_info->fd == -1) 
     {
-        if (errno == EACCES) printf("ft_nm: %s: Permission denied\n", arg);
-        else if (errno == ENOENT) printf("ft_nm: '%s': No such file or directory\n", arg);
-        else printf("fd error : %s %d", arg, errno);
+        if (errno == EACCES) print("ft_nm: '", arg, "': Permission denied\n", NULL);
+        else if (errno == ENOENT) print("ft_nm: '", arg, "': No such file or directory\n", NULL);    
+        else print("ft_nm: '", arg, "': Error while opening file\n", NULL);
         free(file_info);
         return NULL;
     }
@@ -18,7 +16,7 @@ t_file_info *parse_arg(char *arg)
     if (ok == -1) 
     {
         close(file_info->fd);
-        printf("stat error : %s %d", arg, errno);
+        print("ft_nm: '", arg, "': Error while reading file\n", NULL);
         free(file_info);
         return NULL;
     }
@@ -31,7 +29,7 @@ t_file_info *parse_arg(char *arg)
     if (S_ISDIR(file_info->stat.st_mode)) 
     {
         close(file_info->fd);
-        printf("ft_nm: Warning: '%s' is a directory\n", arg);
+        print("ft_nm: Warning: '", arg, "' is a directory\n", NULL);
         free(file_info);
         return NULL;
     }
@@ -39,7 +37,7 @@ t_file_info *parse_arg(char *arg)
     if (file_info->map == MAP_FAILED) 
     {
         close(file_info->fd);
-        printf("map error : %s %d\n", arg, errno);
+        print("ft_nm: '", arg, "': Error while mapping file\n", NULL);
         free(file_info);
         return NULL;
     }
@@ -47,7 +45,7 @@ t_file_info *parse_arg(char *arg)
     {
         close(file_info->fd);
         munmap(file_info->map, file_info->size);
-        printf("ft_nm: %s: file format not recognized\n", arg);
+        print("ft_nm: '", arg, "': file format not recognized\n", NULL);
         free(file_info);
         return NULL;
     }
