@@ -114,7 +114,7 @@ void print_result(t_sym_list **list, int nb)
     {
         if (tmp->name == 0)
             continue;
-        if (tmp->value == 0 && tmp->type != 'T' && tmp->type != 't' && tmp->type != 'a' && tmp->type != 'A')
+        if (tmp->value == 0 && (tmp->type == 'U' || tmp->type == 'W' || tmp->type == 'w') )
             print_result_format(' ', nb, 0, tmp->type, tmp->name);
         else
             print_result_format('0', nb, tmp->value, tmp->type, tmp->name);
@@ -124,8 +124,8 @@ void print_result(t_sym_list **list, int nb)
 
 void print(char *s1, char *s2, char *s3, char *s4)
 {
-    if (s1) write(1, s1, ft_strlen(s1));
-    if (s2) write(1, s2, ft_strlen(s2));
-    if (s3) write(1, s3, ft_strlen(s3));
-    if (s4) write(1, s4, ft_strlen(s4));
+    if (s1) write(2, s1, ft_strlen(s1));
+    if (s2) write(2, s2, ft_strlen(s2));
+    if (s3) write(2, s3, ft_strlen(s3));
+    if (s4) write(2, s4, ft_strlen(s4));
 }

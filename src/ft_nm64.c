@@ -61,6 +61,7 @@ void process_elf64(t_file_info *file_info)
     Elf64_Shdr *shdr = (Elf64_Shdr *)(file_info->map + ehdr->e_shoff);
     int symbols_find = 0;
 
+
     for (int i = 0; i < ehdr->e_shnum; i++) 
     {
         if (shdr[i].sh_type == SHT_SYMTAB) 

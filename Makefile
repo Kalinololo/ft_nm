@@ -16,6 +16,8 @@ bin/%.o: src/%.c
 test:
 	gcc resources/sample.c -o resources/sample_64
 	gcc resources/sample.c -g -o resources/sample_64_debug
+	gcc -m32 resources/sample.c -o resources/sample_32
+	gcc -m32 resources/sample.c -g -o resources/sample_32_debug
 
 
 clean:

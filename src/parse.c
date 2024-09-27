@@ -1,9 +1,29 @@
 #include "nm.h"
 
+int check_format(char *c)
+{
+    if (c[0] == (char)127 && c[1] == 'E' && c[2] == 'L' && c[3] == 'F' && (c[4] == 2 || c[4] == 1))
+        return (0);
+    return (1);
+}
+
+int check_size(t_file_info *file)
+{
+    Elf64_Ehdr *ehdr = (Elf64_Ehdr *)file->map;
+    Elf64_Shdr *shdr = (Elf64_Shdr *)(file->map + ehdr->e_shoff);
+    if (shdr->sh_offset + shdr->sh_size > file->size) 
+    {
+        print("ft_nm: warning: ", file->path, " has a section extending past end of file\n", NULL);
+        return (1);
+    }
+    return (0);
+}
+
 t_file_info *parse_arg(char *arg)
 {
     t_file_info *file_info = (t_file_info *)malloc(sizeof(t_file_info));
     file_info->fd = open(arg, O_RDONLY);
+    file_info->path = arg;
     if (file_info->fd == -1) 
     {
         if (errno == EACCES) print("ft_nm: '", arg, "': Permission denied\n", NULL);
@@ -26,6 +46,7 @@ t_file_info *parse_arg(char *arg)
         free(file_info);
         return NULL;
     }
+    file_info->size = file_info->stat.st_size;
     if (S_ISDIR(file_info->stat.st_mode)) 
     {
         close(file_info->fd);
@@ -45,18 +66,10 @@ t_file_info *parse_arg(char *arg)
     {
         close(file_info->fd);
         munmap(file_info->map, file_info->size);
-        print("ft_nm: '", arg, "': file format not recognized\n", NULL);
+        print("ft_nm: ", arg, ": file format not recognized\n", NULL);
         free(file_info);
         return NULL;
     }
-    file_info->path = arg;
     file_info->is_64 = file_info->map[4] == 2;
     return file_info;
-}
-
-int check_format(char *c)
-{
-    if (c[0] == (char)127 && c[1] == 'E' && c[2] == 'L' && c[3] == 'F' && (c[4] == 2 || c[4] == 1))
-        return (0);
-    return (1);
 }
