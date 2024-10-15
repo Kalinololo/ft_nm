@@ -36,7 +36,7 @@ void name_sort(t_sym_list **list)
         tmp2 = tmp->next;
         while (tmp2->next != NULL) 
         {
-            if (ft_strcmp(tmp->name, tmp2->name) >= 0) 
+            if (ft_strcmp(tmp->name, tmp2->name) >= 0)
             {
                 char *name = tmp->name;
                 unsigned long value = tmp->value;

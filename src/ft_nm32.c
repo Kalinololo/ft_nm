@@ -58,7 +58,6 @@ char get_symbol_type32(Elf32_Sym symtab, Elf32_Shdr *shdr, char *name)
 
 void process_elf32(t_file_info *file_info) 
 {
-    printf("\n32bit:\n");
     Elf32_Ehdr *ehdr = (Elf32_Ehdr *)file_info->map;
     Elf32_Shdr *shdr = (Elf32_Shdr *)(file_info->map + ehdr->e_shoff);
     int symbols_find = 0;
