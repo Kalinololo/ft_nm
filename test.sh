@@ -6,13 +6,7 @@ RED='\033[0;31m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-mapfile -t executables < <(find ./tests/bin -type f)
-
-mapfile -t subdir_executables < <(find ./tests/bin2 -type f)
-executables+=("${subdir_executables[@]}")
-
-mapfile -t subdir_executables < <(find ./tests/bin3 -type f)
-executables+=("${subdir_executables[@]}")
+mapfile -t executables < <(find ./tests/ -type f)
 
 executables+=("./ft_nm" "dsgbhsdg")
 

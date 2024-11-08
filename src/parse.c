@@ -7,13 +7,35 @@ int check_format(char *c)
     return (1);
 }
 
-int check_size(t_file_info *file)
+int check_size_64(t_file_info *file)
 {
     Elf64_Ehdr *ehdr = (Elf64_Ehdr *)file->map;
     Elf64_Shdr *shdr = (Elf64_Shdr *)(file->map + ehdr->e_shoff);
+    if (ehdr->e_shoff > file->size || ehdr->e_shnum == 0) 
+    {
+        print(2, "ft_nm: ", file->path, ": file format not recognized\n", NULL);
+        return (1);
+    }
     if (shdr->sh_offset + shdr->sh_size > file->size) 
     {
-        print("ft_nm: warning: ", file->path, " has a section extending past end of file\n", NULL);
+        print(2, "ft_nm: warning: ", file->path, " has a section extending past end of file\n", NULL);
+        return (1);
+    }
+    return (0);
+}
+
+int check_size_32(t_file_info *file)
+{
+    Elf32_Ehdr *ehdr = (Elf32_Ehdr *)file->map;
+    Elf32_Shdr *shdr = (Elf32_Shdr *)(file->map + ehdr->e_shoff);
+    if (ehdr->e_shoff > file->size || ehdr->e_shnum == 0) 
+    {
+        print(2, "ft_nm: ", file->path, ": file format not recognized\n", NULL);
+        return (1);
+    }
+    if (shdr->sh_offset + shdr->sh_size > file->size) 
+    {
+        print(2, "ft_nm: warning: ", file->path, " has a section extending past end of file\n", NULL);
         return (1);
     }
     return (0);
@@ -26,9 +48,9 @@ t_file_info *parse_arg(char *arg)
     file_info->path = arg;
     if (file_info->fd == -1) 
     {
-        if (errno == EACCES) print("ft_nm: '", arg, "': Permission denied\n", NULL);
-        else if (errno == ENOENT) print("ft_nm: '", arg, "': No such file or directory\n", NULL);    
-        else print("ft_nm: '", arg, "': Error while opening file\n", NULL);
+        if (errno == EACCES) print(2, "ft_nm: '", arg, "': Permission denied\n", NULL);
+        else if (errno == ENOENT) print(2, "ft_nm: '", arg, "': No such file or directory\n", NULL);    
+        else print(2, "ft_nm: '", arg, "': Error while opening file\n", NULL);
         free(file_info);
         return NULL;
     }
@@ -36,7 +58,7 @@ t_file_info *parse_arg(char *arg)
     if (ok == -1) 
     {
         close(file_info->fd);
-        print("ft_nm: '", arg, "': Error while reading file\n", NULL);
+        print(2, "ft_nm: '", arg, "': Error while reading file\n", NULL);
         free(file_info);
         return NULL;
     }
@@ -50,7 +72,7 @@ t_file_info *parse_arg(char *arg)
     if (S_ISDIR(file_info->stat.st_mode)) 
     {
         close(file_info->fd);
-        print("ft_nm: Warning: '", arg, "' is a directory\n", NULL);
+        print(2, "ft_nm: Warning: '", arg, "' is a directory\n", NULL);
         free(file_info);
         return NULL;
     }
@@ -58,7 +80,7 @@ t_file_info *parse_arg(char *arg)
     if (file_info->map == MAP_FAILED) 
     {
         close(file_info->fd);
-        print("ft_nm: '", arg, "': Error while mapping file\n", NULL);
+        print(2, "ft_nm: '", arg, "': Error while mapping file\n", NULL);
         free(file_info);
         return NULL;
     }
@@ -66,10 +88,17 @@ t_file_info *parse_arg(char *arg)
     {
         close(file_info->fd);
         munmap(file_info->map, file_info->size);
-        print("ft_nm: ", arg, ": file format not recognized\n", NULL);
+        print(2, "ft_nm: ", arg, ": file format not recognized\n", NULL);
         free(file_info);
         return NULL;
     }
     file_info->is_64 = file_info->map[4] == 2;
+    if (file_info->is_64 ? check_size_64(file_info) : check_size_32(file_info))
+    {
+        close(file_info->fd);
+        munmap(file_info->map, file_info->size);
+        free(file_info);
+        return NULL;
+    }
     return file_info;
 }

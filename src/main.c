@@ -16,7 +16,7 @@ int main(int ac, char **av) {
     while (++i < ac) {
         t_file_info *file_info = parse_arg(av[i]);
         if (file_info == NULL) continue;
-        if (ac > 2) print("\n", file_info->path, ":\n", NULL);
+        if (ac > 2) print(1, "\n", av[i], ":\n", NULL);
         if (file_info->is_64) process_elf64(file_info);
         else process_elf32(file_info);
 

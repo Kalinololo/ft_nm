@@ -36,7 +36,7 @@ void name_sort(t_sym_list **list)
         tmp2 = tmp->next;
         while (tmp2->next != NULL) 
         {
-            if (ft_strcmp(tmp->name, tmp2->name) >= 0)
+            if (tmp->name && tmp2->name && ft_strcmp(tmp->name, tmp2->name) >= 0)
             {
                 char *name = tmp->name;
                 unsigned long value = tmp->value;
@@ -112,20 +112,29 @@ void print_result(t_sym_list **list, int nb)
 
     while (tmp->next != NULL) 
     {
-        if (tmp->name == 0)
-            continue;
         if (tmp->value == 0 && (tmp->type == 'U' || tmp->type == 'W' || tmp->type == 'w') )
-            print_result_format(' ', nb, 0, tmp->type, tmp->name);
+            print_result_format(' ', nb, 0, tmp->type, tmp->name ? tmp->name : "(null)");
         else
-            print_result_format('0', nb, tmp->value, tmp->type, tmp->name);
+            print_result_format('0', nb, tmp->value, tmp->type, tmp->name ? tmp->name : "(null)");
         tmp = tmp->next;
     }
 }
 
-void print(char *s1, char *s2, char *s3, char *s4)
+void print(int out, char *s1, char *s2, char *s3, char *s4)
 {
-    if (s1) write(2, s1, ft_strlen(s1));
-    if (s2) write(2, s2, ft_strlen(s2));
-    if (s3) write(2, s3, ft_strlen(s3));
-    if (s4) write(2, s4, ft_strlen(s4));
+    if (s1) write(out, s1, ft_strlen(s1));
+    if (s2) write(out, s2, ft_strlen(s2));
+    if (s3) write(out, s3, ft_strlen(s3));
+    if (s4) write(out, s4, ft_strlen(s4));
+}
+
+int isNull(char *str)
+{
+    while (*str)
+    {
+        if (*str != '0')
+            return 0;
+        str++;
+    }
+    return 1;
 }

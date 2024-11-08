@@ -1,24 +1,11 @@
 #include "nm.h"
 
-/*
-Upper : Global
-Lower : Local
-R/r :  Read only data section
-D/d :  Data section
-*/
-
-/*
-0 15 1
-0 6 1
-*/
-
-char get_symbol_type32(Elf32_Sym symtab, Elf32_Shdr *shdr, char *name)
+char get_symbol_type32(Elf32_Sym symtab, Elf32_Shdr *shdr)
 {
     Elf32_Word section_type = shdr[symtab.st_shndx].sh_type;
     Elf32_Word section_flags = shdr[symtab.st_shndx].sh_flags;
     unsigned char type = ELF32_ST_TYPE(symtab.st_info);
     unsigned char bind = ELF32_ST_BIND(symtab.st_info);
-    (void)name;
 
     if (bind == STB_WEAK) 
     {
@@ -39,14 +26,14 @@ char get_symbol_type32(Elf32_Sym symtab, Elf32_Shdr *shdr, char *name)
         if (bind == STB_GLOBAL) return 'T';
         if (bind == STB_LOCAL) return 't';
     }
-    if (type == STT_OBJECT || section_type == SHT_PROGBITS)
+    if (type == STT_OBJECT || section_type == SHT_PROGBITS || section_type == SHT_DYNAMIC || section_type == SHT_INIT_ARRAY)
     {
         if (((section_flags & SHF_ALLOC) && !(section_flags & SHF_WRITE)))
         {
             if (bind == STB_GLOBAL) return 'R';
             if (bind == STB_LOCAL) return 'r';
         }
-        if (section_flags == (SHF_ALLOC | SHF_WRITE) || section_type == SHT_DYNAMIC)
+        if (section_flags == (SHF_ALLOC | SHF_WRITE))
         {
             if (bind == STB_GLOBAL) return 'D';
             if (bind == STB_LOCAL) return 'd';
@@ -82,8 +69,10 @@ void process_elf32(t_file_info *file_info)
                 if (ELF32_ST_TYPE(symtab[j].st_info) == STT_FILE)
                     continue;
                 tmp->name = symstrtab + symtab[j].st_name;
+                if (isNull(tmp->name))
+                    tmp->name = NULL;
                 tmp->value = symtab[j].st_value;
-                tmp->type = get_symbol_type32(symtab[j], shdr, tmp->name);
+                tmp->type = get_symbol_type32(symtab[j], shdr);
                 t_sym_list *new = malloc(sizeof(t_sym_list));
                 tmp->next = new;
                 tmp = tmp->next;
@@ -95,5 +84,5 @@ void process_elf32(t_file_info *file_info)
             print_result(sym_list, 8);
         }
     }
-    if (!symbols_find) print("ft_nm: ", file_info->path, ": no symbols\n", NULL);
+    if (!symbols_find) print(2, "ft_nm: ", file_info->path, ": no symbols\n", NULL);
 }
